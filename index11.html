@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 爆款文案生成器 - 极简工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; background-color: #0d1117; color: #c9d1d9; text-align: center; padding: 40px 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        h1 { color: #ffffff; margin-bottom: 10px; font-size: 2rem; }
+        p.subtitle { color: #8b949e; margin-bottom: 30px; font-size: 0.95rem; }
+        .input-group { text-align: left; margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #3fb950; font-size: 0.9rem; font-weight: bold; }
+        input { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #30363d; background-color: #161b22; color: #fff; font-size: 1rem; outline: none; }
+        input:focus { border-color: #3fb950; }
+        button.btn-primary { width: 100%; padding: 14px; background-color: #238636; color: #ffffff; border: none; border-radius: 6px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        button.btn-primary:hover { background-color: #2ea043; }
+        button.btn-primary:disabled { background-color: #30363d; cursor: not-allowed; }
+        .result-box { margin-top: 30px; background-color: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 8px; text-align: left; display: none; }
+        .result-box h3 { color: #ffffff; margin-bottom: 10px; font-size: 1.1rem; }
+        .result-content { color: #c9d1d9; font-size: 0.95rem; white-space: pre-wrap; line-height: 1.8; }
+        .paywall { margin-top: 20px; padding: 20px; border: 1px solid #f85149; border-radius: 8px; color: #f85149; font-size: 1rem; display: none; background-color: #2d1618; text-align: left;}
+        .paywall strong { font-size: 1.2rem; display: block; margin-bottom: 10px;}
+        .wechat-box { background-color: #161b22; padding: 15px; border-radius: 6px; margin-top: 15px; color: #fff; border: 1px dashed #8b949e;}
+        .wechat-id { font-size: 1.3rem; font-weight: bold; color: #3fb950; letter-spacing: 1px; user-select: all; }
+        .loader { display: none; border: 4px solid #30363d; border-top: 4px solid #3fb950; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 AI 爆款文案生成器</h1>
+        <p class="subtitle">输入商品信息，AI 为你量身定制高转化文案</p>
+        
+        <div class="input-group">
+            <label>1. 你的产品是什么？</label>
+            <input type="text" id="productName" placeholder="例如：手工黑糖姜茶">
+        </div>
+        <div class="input-group">
+            <label>2. 核心卖点是什么？</label>
+            <input type="text" id="productSell" placeholder="例如：暖宫驱寒、独立包装、真材实料">
+        </div>
+        
+        <button class="btn-primary" id="genBtn" onclick="generateText()">✨ 立即生成爆款文案</button>
+        <div class="loader" id="loader"></div>
+
+        <div class="result-box" id="resultBox">
+            <h3>AI 为你生成的文案：</h3>
+            <div class="result-content" id="resultContent"></div>
+        </div>
+
+        <div class="paywall" id="paywall">
+            <strong>🔒 免费次数已用完</strong>
+            想要无限次生成高质量文案？<br>
+            请扫码支付 9.9 元，支付后输入下方【专属密码】即可解锁。
+            
+            <div style="margin-top: 20px; text-align: center;">
+                <img src="https://raw.githubusercontent.com/xuzhiyi2007/-my-first-project/main/IMG_4443.jpeg" style="width: 200px; margin-top: 10px; border-radius: 8px; border: 2px solid #30363d;">
+                <p style="font-size: 0.85rem; color: #8b949e; margin-top: 5px;">扫码支付 9.9 元，加微信获取密码</p>
+            </div>
+            
+            <div style="margin-top: 20px; background-color: #161b22; padding: 15px; border-radius: 6px; border: 1px dashed #8b949e;">
+                <div style="font-size: 0.9rem; margin-bottom: 10px; color: #c9d1d9;">付款后，请添加微信获取解锁密码：</div>
+                <div style="font-size: 1.1rem; font-weight: bold; color: #3fb950; padding: 10px; background: #0d1117; border-radius: 6px; margin-bottom: 10px;">
+                    微信：Xiaoxu07QwQ
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="cdkey" placeholder="在此输入密码" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: #fff;">
+                    <button onclick="unlock()" style="background-color: #238636; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;">解锁</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let generateCount = 0; 
+
+        async function generateText() {
+            const name = document.getElementById('productName').value || '这款神仙好物';
+            const sell = document.getElementById('productSell').value || '超级好用、性价比超高';
+            const btn = document.getElementById('genBtn');
+            const loader = document.getElementById('loader');
+            const resultBox = document.getElementById('resultBox');
+            const resultContent = document.getElementById('resultContent');
+            const paywall = document.getElementById('paywall');
+            
+            if (generateCount >= 3) {
+                resultBox.style.display = 'none';
+                paywall.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'AI 正在奋笔疾书...';
+            loader.style.display = 'block';
+            resultBox.style.display = 'none';
+            paywall.style.display = 'none';
+
+            try {
+                const response = await fetch('https://my-ai-proxy-kx5m.onrender.com/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ product: name, sell: sell })
+                });
+
+                const data = await response.json();
+                
+                if (data.choices && data.choices.length > 0) {
+                    const aiText = data.choices[0].message.content;
+                    resultContent.innerText = aiText;
+                    resultBox.style.display = 'block';
+                    generateCount++; 
+                    if (generateCount === 3) {
+                        setTimeout(() => { alert('您已使用 3 次免费机会，下次生成将需要付费解锁哦~'); }, 500);
+                    }
+                } else {
+                    throw new Error('AI 返回格式错误');
+                }
+            } catch (error) {
+                alert('AI 生成失败，可能是网络问题。');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = '✨ 立即生成爆款文案';
+                loader.style.display = 'none';
+            }
+        }
+
+        // 这是你的万能密码，谁付了钱，你就把这个发给他
+        const SECRET_KEY = "VIP-8888"; 
+
+        function unlock() {
+            const inputKey = document.getElementById('cdkey').value;
+            if (inputKey === SECRET_KEY) {
+                generateCount = 0; // 重置免费次数，变成无限次
+                document.getElementById('paywall').style.display = 'none';
+                alert("🎉 解锁成功！您现在可以无限次生成文案了！");
+            } else {
+                alert("密码错误，请添加微信获取正确密码。");
+            }
+        }
+    </script>
+</body>
+</html>
