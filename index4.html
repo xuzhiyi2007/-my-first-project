@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爆款文案生成器 - 极简工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0d1117; 
+            color: #c9d1d9; 
+            line-height: 1.6;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .container { max-width: 600px; margin: 0 auto; }
+        h1 { color: #ffffff; margin-bottom: 10px; font-size: 2rem; }
+        p.subtitle { color: #8b949e; margin-bottom: 30px; font-size: 0.95rem; }
+        .input-group { text-align: left; margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #3fb950; font-size: 0.9rem; font-weight: bold; }
+        input { 
+            width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #30363d; 
+            background-color: #161b22; color: #fff; font-size: 1rem; outline: none;
+        }
+        input:focus { border-color: #3fb950; }
+        button.btn-primary {
+            width: 100%; padding: 14px; background-color: #238636; color: #ffffff;
+            border: none; border-radius: 6px; font-size: 1.1rem; font-weight: bold;
+            cursor: pointer; margin-top: 10px; transition: 0.3s;
+        }
+        button.btn-primary:hover { background-color: #2ea043; }
+        .result-box {
+            margin-top: 30px; background-color: #161b22; border: 1px solid #30363d;
+            padding: 20px; border-radius: 8px; text-align: left; display: none;
+        }
+        .result-box h3 { color: #ffffff; margin-bottom: 10px; font-size: 1.1rem; }
+        .result-content { color: #c9d1d9; font-size: 0.95rem; white-space: pre-wrap; line-height: 1.8; }
+        .paywall {
+            margin-top: 20px; padding: 15px; border: 1px dashed #f85149;
+            border-radius: 6px; color: #f85149; font-size: 0.9rem; display: none;
+            background-color: #161b22;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 爆款文案生成器</h1>
+        <p class="subtitle">输入商品信息，一键生成高转化率的种草文案（内测版）</p>
+        
+        <div class="input-group">
+            <label>1. 你的产品是什么？</label>
+            <input type="text" id="productName" placeholder="例如：手工黑糖姜茶">
+        </div>
+        <div class="input-group">
+            <label>2. 核心卖点是什么？</label>
+            <input type="text" id="productSell" placeholder="例如：暖宫驱寒、独立包装、真材实料">
+        </div>
+        
+        <button class="btn-primary" onclick="generateText()">✨ 立即生成爆款文案</button>
+
+        <div class="result-box" id="resultBox">
+            <h3>为你生成的文案：</h3>
+            <div class="result-content" id="resultContent"></div>
+        </div>
+
+        <div class="paywall" id="paywall">
+            <strong>免费次数已用完！</strong><br>
+            想要无限次生成？请扫码支付 9.9 元解锁高级版。<br>
+            <!-- 这里已经换成了你的专属图片链接 -->
+            <img src="https://raw.githubusercontent.com/xuzhiyi2007/-my-first-project/main/IMG_4443.jpeg" style="width: 200px; margin-top: 10px; border-radius: 8px;">
+        </div>
+    </div>
+
+    <script>
+        let generateCount = 0; 
+
+        function generateText() {
+            const name = document.getElementById('productName').value || '这款神仙好物';
+            const sell = document.getElementById('productSell').value || '超级好用、性价比超高';
+            
+            if (generateCount >= 3) {
+                document.getElementById('resultBox').style.display = 'none';
+                document.getElementById('paywall').style.display = 'block';
+                return;
+            }
+
+            const templates = [
+                `家人们谁懂啊！最近挖到了这个【${name}】，真的绝绝子！😭 它的核心亮点是：${sell}。我自己用了一段时间，真心觉得相见恨晚！如果你也有同样的需求，千万别错过，赶紧冲！🛒`,
+                `救命！终于找到完美的【${name}】了！🆘 之前踩了那么多坑，直到遇到它。主打的就是一个【${sell}】。用一句话总结：始于颜值，忠于品质。需要的姐妹/兄弟直接闭眼入！✨`,
+                `按头安利！这个【${name}】我不允许还有人不知道！🔥 重点划出：${sell}。用过一次就回不去了，不仅省心还特别实在。趁着现在有活动，赶紧囤起来！👇`
+            ];
+
+            const randomIndex = Math.floor(Math.random() * templates.length);
+            const result = templates[randomIndex];
+
+            document.getElementById('resultContent').innerText = result;
+            document.getElementById('resultBox').style.display = 'block';
+            document.getElementById('paywall').style.display = 'none';
+            
+            generateCount++; 
+            
+            if (generateCount === 3) {
+                setTimeout(() => { alert('您已使用 3 次免费机会，下次生成将需要付费解锁哦~'); }, 500);
+            }
+        }
+    </script>
+</body>
+</html>
